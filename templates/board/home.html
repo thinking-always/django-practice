@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}홈{% endblock %}
+
+{% block content %}
+<p><a href="{% url 'post_create' %}">새글 작성</a></p>
+
+<header>게시물 목록</header>
+    {% for p in posts %}
+    <ul>
+        <li>
+            <a href="{% url 'post_detail' p.pk %}">{{p.title}}</a>
+        </li>
+        
+    </ul>
+    {% empty %}
+    <p>게시물이 없습니다</p>
+    {% endfor %}
+{% endblock %}
