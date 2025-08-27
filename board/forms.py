@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post
+from .models import Post, Comment
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -12,4 +12,15 @@ class PostForm(forms.ModelForm):
         labels = {
             "title":"제목",
             "content": "내용",
+        }
+        
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["content"]
+        widgets = {
+            "content": forms.TextInput(attrs={"class":"input", "placeholder":"댓글 내용"}),
+        }
+        labels = {
+            "content":"댓글 내용"
         }
