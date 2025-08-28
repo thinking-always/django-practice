@@ -6,7 +6,7 @@
 <h1>{{post.title}}</h1>
 <p>{{post.content}}</p>
 <p><a href="{% url 'post_update' post.pk %}">글 수정하기</a></p>
-
+<p><a href="{% url 'post_delete' post.pk %}">글 삭제하기</a></p>
 <p><a href="/">목록으로 가기</a></p>
 
 <h2>댓글 목록</h2>
