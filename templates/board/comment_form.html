@@ -1,35 +1,6 @@
-{% extends "base.html" %}
-
-{% block title %} 댓글 작성 {% endblock %}
-
-{% block content %}
-<h2> 댓글 작성 </h2>
-<form method="post">
-    {% csrf_token %}
-
-    <div>
-        {{form.non_field_errors}}
-    </div>
-
-    <div>
-        <label>{{form.title.label_tag}}</label>
-        {{form.title.errors}}
-        {{form.title}}
-    </div>
-
-    <div>
-        <label>{{form.content.label_tag}}</label>
-        {{form.content.errors}}
-        {{form.content}}
-    </div>
-
-    <button type="submit">{% if mode == "create" %} 글 작성 {% else %} 글 수정 {% endif %}</button>
-    {%if mode == "create"%}
-    <a href="{% url 'home' %}">취소</a>
-    {% else %}
-    <a href="{% url 'post_detail' post.pk %}">취소</a>
-    {% endif %}
+<form method="post" action="{% url 'comment_create' post.pk %}">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  {{ form.as_p }}
+  <button type="submit">댓글 달기</button>
 </form>
-
-{% endblock %}
-

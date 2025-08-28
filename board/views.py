@@ -1,52 +1,58 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, render
 from .models import Post, Comment
 from .forms import PostForm, CommentForm
+from django.views.generic import ListView, CreateView, DetailView, UpdateView
+from django.urls import reverse
 
-def home(request):
-    posts = Post.objects.order_by("-created_at")
-    return render(request, "board/home.html", {"posts":posts})
-
-def post_detail(request,pk):
-    post = get_object_or_404(Post, pk=pk)
-    comments = post.comments.all()
+class PostListView(ListView):
+    model = Post
+    template_name = "board/home.html"
+    paginate_by = 10
+    ordering = "-created_at"
+    context_object_name = "posts"
     
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            comment.save()
-            return redirect("post_detail", pk=post.pk)
-    else:
-        form = CommentForm()
+class PostDetailView(DetailView):
+    model = Post
+    template_name = "board/post_detail.html"
+    context_object_name = "post"
     
-    return render(request, "board/post_detail.html", {
-        "post":post,
-        "comments":comments,
-        "form":form
-         })
-
-def post_create(request):
-    if request.method == "POST":
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save()
-            return redirect("post_detail", pk=post.pk)
-    else:
-        form = PostForm()
-    return render(request, "board/post_form.html", {"form":form, "mode":"create"})
-
-def post_udpate(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
-        if form.is_valid():
-            post = form.save()
-            return redirect("post_detail", pk=post.pk)
-    else:
-        form = PostForm(instance=post)
-    return render(request, "board/post_form.html", {"form":form, "mode": "update", "post": post})
-
-def comment(request, pk):
-    comments = Comment.objects.order_by("-created_at")
-    return render(request, "board/post_detail.html", {"comments":comments})
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["comments"] = self.object.comments.all()
+        ctx["form"] = CommentForm()
+        return ctx
+    
+    
+class PostCreateView(CreateView):
+    model = Post
+    template_name = "board/post_form.html"
+    form_class = PostForm
+    
+    
+class PostUpdateView(UpdateView):
+    model = Post
+    template_name = "board/post_form.html"
+    form_class = PostForm
+    
+class CommentCreateView(CreateView):
+    model = Comment
+    template_name = "board/comment_form.html"
+    form_class = CommentForm
+    
+    def form_valid(self, form):
+        post = get_object_or_404(Post, pk=self.kwargs["pk"])
+        form.instance.post = post
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        post = get_object_or_404(Post, pk=self.kwargs["pk"])
+        comments = post.comments.all().order_by("-created_at")
+        return render(self.request, "board/post_detail.html", {
+            "post":post,
+            "comments": comments,
+            "form": form,
+        }, status=400)
+    
+   
+    def get_success_url(self):
+        return reverse("post_detail", kwargs={"pk": self.kwargs["pk"]})

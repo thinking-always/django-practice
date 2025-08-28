@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %} {% if mode == "create" %} 새글 작성 {% else %} 글 수정 {% endif %} {% endblock %}
+{% block title %} {% if object %} 글 수정 {% else %} 새글 작성 {% endif %} {% endblock %}
 
 {% block content %}
-<h2>{% if mode == "create" %}글 작성{% else %}글 수정{% endif %}</h2>
+<h2>{% if object %}글 수정{% else %}글 작성{% endif %}</h2>
 <form method="post">
     {% csrf_token %}
 
@@ -12,22 +12,22 @@
     </div>
 
     <div>
-        <label>{{form.title.label_tag}}</label>
+        {{form.title.label_tag}}
         {{form.title.errors}}
         {{form.title}}
     </div>
 
     <div>
-        <label>{{form.content.label_tag}}</label>
+        {{form.content.label_tag}}
         {{form.content.errors}}
         {{form.content}}
     </div>
 
-    <button type="submit">{% if mode == "create" %} 글 작성 {% else %} 글 수정 {% endif %}</button>
-    {%if mode == "create"%}
-    <a href="{% url 'home' %}">취소</a>
+    <button type="submit">{% if object %} 글 수정 {% else %} 글 작성 {% endif %}</button>
+    {% if object %}
+    <a href="{% url 'post_detail' object .pk %}">취소</a>
     {% else %}
-    <a href="{% url 'post_detail' post.pk %}">취소</a>
+    <a href="{% url 'home' %}">취소</a>
     {% endif %}
 </form>
 
